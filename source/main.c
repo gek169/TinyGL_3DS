@@ -15,8 +15,8 @@
 #define CHAD_MATH_IMPL
 #include "include/gl_helpers.h"
 #include "include/tobjparse.h"
-#define WIDTH 240
-#define HEIGHT 320
+#define WIDTH 320
+#define HEIGHT 240
 #define SCREENBYTES (320*240*3)
 #define MAX(x,y) (x>y?x:y)
 #define MIN(x,y) (x<y?x:y)
@@ -229,25 +229,10 @@ int main(int argc, char **argv)
 	{
 		objraw omodel; model m = initmodel();
 		omodel = tobj_load(modelName);
-		if(omodel.positions)
-			printf("\nHas %d positions",sb_count(omodel.positions));
-		if(omodel.texcoords)
-			printf("\nHas %d texcoords",sb_count(omodel.texcoords));
-		if(omodel.normals)
-			printf("\nHas %d normals",sb_count(omodel.normals));
-		if(omodel.colors)
-			printf("\nHas %d colors",sb_count(omodel.colors));
-		if(omodel.faces)
-			printf("\nHas %d faces, or %d indices",sb_count(omodel.faces)/3,sb_count(omodel.faces));
 		
 		if(!omodel.positions) {puts("\nERROR! No positions in model. Aborting...\n");} else {
 		m = tobj_tomodel(&omodel);
 		printf("\nHas %d points.\n",m.npoints); 
-	    puts("\nFinished looking at verts...\n");
-	    if(m.d) puts("\nHas Positions!\n");
-	    if(m.c) puts("\nHas Colors!\n");
-	    if(m.n) puts("\nHas Normals!\n");
-	    if(m.t) puts("\nHas Texcoords!\n");
 		modelDisplayList = createModelDisplayList(
 			m.d, m.npoints,
 			m.c,
@@ -285,8 +270,8 @@ int main(int argc, char **argv)
 		wasdstate[1] = (kHeld & KEY_DLEFT) ?1:0;
 		wasdstate[3] = (kHeld & KEY_DRIGHT)?1:0;
 		wasdstate[2] = (kHeld & KEY_DDOWN) ?1:0;
-		mousex = (kHeld & KEY_Y)?30:0 + (kHeld & KEY_A)?-30:0;
-		mousey = (kHeld & KEY_X)?30:0 + (kHeld & KEY_B)?-30:0;
+		mousex = (kHeld & KEY_Y)?-30:0 + (kHeld & KEY_A)?30:0;
+		mousey = (kHeld & KEY_X)?-30:0 + (kHeld & KEY_B)?30:0;
 		
 		fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
 		
@@ -340,12 +325,12 @@ int main(int argc, char **argv)
 		*/
 		
 		vec3 right = normalizev3(
-			crossv3(
-				normalizev3(camforw),
-				normalizev3(camup)
-			)
-		);
-		matrix = (lookAt(campos,addv3(campos,camforw),right)); //Using right vector to correct for screen rotation.
+					crossv3(
+						normalizev3(camforw),
+						normalizev3(camup)
+					)
+				);right.d[1]=0;
+		matrix = (lookAt(campos,addv3(campos,camforw),camup)); //Using right vector to correct for screen rotation.
 		glLoadMatrixf(matrix.d);
 		if(wasdstate[0])
 			campos = addv3(campos,
@@ -361,13 +346,13 @@ int main(int argc, char **argv)
 			);
 		if(wasdstate[1])
 			campos = addv3(campos,
-				scalev3(0.1,
+				scalev3(-0.1,
 					right
 				)
 			);
 		if(wasdstate[3])
 			campos = addv3(campos,
-				scalev3(-0.1,
+				scalev3(0.1,
 					right
 				)
 			);
@@ -411,6 +396,7 @@ int main(int argc, char **argv)
 		//puts("\nafter GL code");
 		for(int i = 0; i < WIDTH * HEIGHT * 4; i++)
 			ifb[i] = 0;
+		glDrawText("Blitting to the screen!\n\n\nWritten by GEK!",0,0,0x00FFffFF); //Should be solid white.
 		swapGL(ifb);
 		rotateCamera();
 		/*
@@ -422,6 +408,7 @@ int main(int argc, char **argv)
 			ifb[4 * (x + y * HEIGHT)+GG_] = src[4 * (x + y * HEIGHT)+1];
 			datum[4 * (x + y * HEIGHT)+BB_] = src[4 * (x + y * HEIGHT)+2];
 		}*/
+		
 		memcpy(fb, ifb, 320*240*4);
 		// Flush and swap framebuffers
 		gfxFlushBuffers();

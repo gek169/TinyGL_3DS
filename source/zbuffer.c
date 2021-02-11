@@ -145,13 +145,13 @@ static void ZB_copyBuffer(ZBuffer * zb,
 		for(int i = 0; i < zb->xsize; i++)
 		{
 			if((*(q+i) & TGL_COLOR_MASK) != TGL_NO_COPY_COLOR)
-				*(((PIXEL*)p1) + i) = *(q+i);
+				*(((PIXEL*)buf) + i*zb->ysize + zb->ysize-y) = pxReverse(*(q+i));
 		}
     #else
 		//memcpy(p1, q, n);
 		//Convert from RGBA to ABGR
 		for(int i = 0; i < zb->xsize; i++){
-			*(((PIXEL*)p1) + i) = pxReverse(*(q+i));
+			*(((PIXEL*)buf) + i*zb->ysize + zb->ysize-y) = pxReverse(*(q+i));
 		}
 	#endif
 	p1 += linesize; //TODO make this a predictable behavior.
