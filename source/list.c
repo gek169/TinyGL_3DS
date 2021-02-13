@@ -32,12 +32,14 @@ static GLList *find_list(GLContext *c,unsigned int list)
   return c->shared_state.lists[list];
 }
 
+
 static void delete_list(GLContext *c,int list)
 {
   GLParamBuffer *pb,*pb1;
   GLList *l;
 
   l=find_list(c,list);
+  if(l==NULL) puts("\nAttempted to delete NULL list!!!!\n");
   assert(l != NULL);
   
   /* free param buffer */
@@ -50,6 +52,13 @@ static void delete_list(GLContext *c,int list)
   
   gl_free(l);
   c->shared_state.lists[list]=NULL;
+}
+void glDeleteLists(unsigned int list, unsigned int range){
+	for(unsigned int i = 0; i < list + range; i++)
+		glDeleteList(list+i);
+}
+void glDeleteList(unsigned int list){
+	delete_list(gl_get_context(), list);
 }
 
 static GLList *alloc_list(GLContext *c,int list)
