@@ -113,6 +113,14 @@ void ZB_resize(ZBuffer * zb, void *frame_buffer, int xsize, int ysize)
 	zb->frame_buffer_allocated = 0;
     }
 }
+
+/*
+static void ZB_ARGB(Zbuffer* zb){
+	for(int i = 0; i < zb->xsize * zb->ysize; i++){
+		zb->pbuf[i] = pxARGB()
+	}
+}
+*/
 inline PIXEL pxReverse(PIXEL x)
 {
 
